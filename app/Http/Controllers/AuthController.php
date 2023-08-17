@@ -7,12 +7,49 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
 
+
+    public function register(Request $request)
+    {
+        try {
+
+            $valueData = $request->validate([
+                'name' => 'required',
+                'email' => 'required',
+                'password' => 'required',
+            ]);
+
+            $user = DB::table('users')->where('email', $valueData['email'])->first();
+
+            if (is_null($user)) {
+                User::create([
+                    'name' => $valueData['name'],
+                    'email' => $valueData['email'],
+                    'password' => Hash::make($valueData['password']),
+                ]);
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Usuario Creado',
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => false,
+                'message' => 'El usuario ya existe!',
+            ], 400);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 
     public function login(Request $request)
     {
@@ -21,14 +58,18 @@ class AuthController extends Controller
         if (Auth::guard('api')->attempt($credentials)) {
             $user = Auth::guard('api')->user();
             $person = Person::where('idUser', $user->id)->get();
-            //$person = $persons[0];
             $jwt = JWTAuth::attempt($credentials);
-            $success = true;
-            return compact('success', 'user', 'jwt', 'person');
+            $status = true;
+
+            return compact('status', 'user', 'jwt', 'person');
+
         } else {
             $success = false;
             $message = 'Credenciales invalidas';
-            return response()->json(['success', 'message'],401);
+            return response()->json([
+                'status' => $success,
+                'message' => $message
+            ], 401);
         }
     }
 
@@ -38,35 +79,5 @@ class AuthController extends Controller
 
         $success = true;
         return compact('success');
-    }
-
-
-    public function register(Request $request)
-    {
-
-        try {
-
-            $valueData = $request->validate([
-                'name' => 'required',
-                'email' => 'required',
-                'password' => 'required',
-            ]);
-
-            User::create([
-                'name' => $valueData['name'],
-                'email' => $valueData['email'],
-                'password' => Hash::make($valueData['password']),
-            ]);
-
-            return response()->json([
-                'status' => true,
-                'message' => 'User Created Successfully',
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage()
-            ], 500);
-        }
     }
 }

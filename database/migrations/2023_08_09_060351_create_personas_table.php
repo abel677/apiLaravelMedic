@@ -15,8 +15,6 @@ return new class extends Migration
             $table->date('birthDate');
             $table->string('typeBlood');
             $table->string('direction');
-            $table->string('securityNumber');
-            $table->string('email');
             $table->string('phone');
 
             $table->foreignId('idUser')

@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
             SchedulesSeeder::class,
             PersonSeed::class,
             DoctorSeed::class,
-            PatientSeed::class
+            //PatientSeed::class
         ]);
     }
 }

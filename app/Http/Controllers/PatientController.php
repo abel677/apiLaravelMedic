@@ -16,7 +16,7 @@ class PatientController extends Controller
     }
 
 
-    
+
 
 
 
@@ -25,31 +25,33 @@ class PatientController extends Controller
         //
     }
 
-    
+
     public function store(Request $request)
     {
         //
     }
 
-    
-    public function show(Patient $patient)
+
+    public function show($id)
     {
-        //
+        $patient = Patient::where('idPerson', $id)->get();
+
+        return response()->json($patient);
     }
 
-    
+
     public function edit(Patient $patient)
     {
         //
     }
 
-    
+
     public function update(Request $request, Patient $patient)
     {
         //
     }
 
-    
+
     public function destroy(Patient $patient)
     {
         //

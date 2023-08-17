@@ -87,10 +87,6 @@ class AppointmentRequestCitaController extends Controller
                 'state' => $value->state,
                 'doctor' => $doctor[$key],
             ];
-
-            // $currentDate[$key] = $value->currentDate;
-            // $appointmentDate[$key] = $value->appointmentDate;
-            // $description[$key] = $value->description;
         }
 
         return response()->json($appointment);

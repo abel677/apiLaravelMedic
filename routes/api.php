@@ -8,7 +8,8 @@ use App\Http\Controllers\SpecialtiesController;
 use App\Http\Controllers\GenderController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AuthController;
-
+use App\Http\Controllers\PatientController;
+use App\Http\Controllers\PersonaController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -23,4 +24,6 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('/gender', GenderController::class)->only('index', 'show', 'update', 'destroy');
     Route::apiResource('/specialties', SpecialtiesController::class)->only('index', 'show', 'update', 'destroy');
     Route::apiResource('/schedules', ScheduleController::class)->only('index', 'show', 'update', 'destroy');
+    Route::apiResource('/persons', PersonaController::class)->only('index', 'store', 'show', 'update', 'destroy');
+    Route::apiResource('/patient', PatientController::class)->only('index', 'store', 'show', 'update', 'destroy');
 });
