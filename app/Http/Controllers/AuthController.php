@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AppointmentRequest;
 use App\Models\Person;
+use App\Models\Role;
 use App\Models\User;
+use App\Models\UserRole;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,14 +28,25 @@ class AuthController extends Controller
                 'password' => 'required',
             ]);
 
-            $user = DB::table('users')->where('email', $valueData['email'])->first();
+            $userFound = DB::table('users')->where('email', $valueData['email'])->first();
 
-            if (is_null($user)) {
-                User::create([
+
+
+
+            if (is_null($userFound)) {
+
+                $user = User::create([
                     'name' => $valueData['name'],
                     'email' => $valueData['email'],
                     'password' => Hash::make($valueData['password']),
                 ]);
+
+
+                UserRole::create([
+                    'idRole' => 3,
+                    'idUser' => $user->id
+                ]);
+
                 return response()->json([
                     'status' => true,
                     'message' => 'Usuario Creado',
@@ -56,13 +70,21 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::guard('api')->attempt($credentials)) {
-            $user = Auth::guard('api')->user();
-            $person = Person::where('idUser', $user->id)->get();
             $jwt = JWTAuth::attempt($credentials);
+            $user = Auth::guard('api')->user();
+
+
+            $roles = DB::table('usersRoles')
+                ->join('roles', 'roles.id', '=', 'usersRoles.idRole')
+                ->join('users', 'users.id', '=', 'usersRoles.idUser')
+                ->where('users.id', $user->id)
+                ->select('roles.*')
+                ->get();
+
+
             $status = true;
 
-            return compact('status', 'user', 'jwt', 'person');
-
+            return compact('status', 'user', 'jwt', 'roles');
         } else {
             $success = false;
             $message = 'Credenciales invalidas';
@@ -79,5 +101,24 @@ class AuthController extends Controller
 
         $success = true;
         return compact('success');
+    }
+
+
+    public function getUser($id)
+    {
+        $user = User::find($id);
+
+
+        $roles = DB::table('usersRoles')
+            ->join('roles', 'roles.id', '=', 'usersRoles.idRole')
+            ->join('users', 'users.id', '=', 'usersRoles.idUser')
+            ->where('users.id', $user->id)
+            ->select('roles.*')
+            ->get();
+
+
+        $status = true;
+
+        return compact('status', 'user', 'roles');
     }
 }

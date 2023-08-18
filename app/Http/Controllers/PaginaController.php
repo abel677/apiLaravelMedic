@@ -2,48 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Page;
 use App\Models\Pagina;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PaginaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function show($idRol)
     {
-        //
-    }
+        $pages = DB::table('permissionsRoles')
+            ->join('roles', 'roles.id', '=', 'permissionsRoles.idRole')
+            ->join('pages', 'pages.id', '=', 'permissionsRoles.idPage')
+            ->where('roles.id', $idRol)
+            ->select('pages.*')
+            ->get();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Pagina $pagina)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Pagina $pagina)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Pagina $pagina)
-    {
-        //
+        return response()->json($pages);
     }
 }

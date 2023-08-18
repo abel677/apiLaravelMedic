@@ -52,6 +52,21 @@ class AppointmentRequestCitaController extends Controller
         }
     }
 
+    public function approved($id)
+    {
+        $cita = AppointmentRequest::find($id);
+
+        if (!$cita) {
+            return response()->json(['mensaje' => 'Cita no encontrada'], 404);
+        }
+
+
+        $cita->state = 1;
+        $cita->save();
+
+        return response()->json(['message' => 'Cita aceptada exitosamente']);
+    }
+
 
 
     public function show($idPatient)
@@ -67,7 +82,8 @@ class AppointmentRequestCitaController extends Controller
                 'doctor_patient.currentDate',
                 'doctor_patient.appointmentDate',
                 'doctor_patient.description',
-                'doctor_patient.state'
+                'doctor_patient.state',
+                'doctor_patient.id',
             )
             ->orderBy('doctor_patient.state')
             ->orderByDesc('doctor_patient.id')
@@ -77,9 +93,11 @@ class AppointmentRequestCitaController extends Controller
 
             $patient = Person::find($value->idPatient);
             $doctor[$key] = Person::find($value->idDoctor);
+            $id = $value->id;
 
 
             $appointment[$key] = [
+                'idAppointment' => $id,
                 'patient' => $patient,
                 'currentDate' => $value->currentDate,
                 'appointmentDate' => $value->appointmentDate,

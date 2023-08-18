@@ -57,7 +57,7 @@ class PersonaController extends Controller
             $token = str::random(60);
             return response()->json([
                 'status' => true,
-                'message' => 'User Created Successfully',
+                'message' => 'Datos Registrados',
                 'token' => $token
             ], 200);
         } catch (\Throwable $th) {
@@ -70,8 +70,7 @@ class PersonaController extends Controller
 
     public function show($id)
     {
-        $person = DB::table('patients')
-            ->join('persons', 'persons.id', '=', 'patients.idPerson')
+        $person = DB::table('persons')
             ->select(
                 'persons.id',
                 'persons.name',
@@ -82,9 +81,7 @@ class PersonaController extends Controller
                 'persons.phone',
                 'persons.idUser',
                 'persons.idGender',
-                'patients.securityNumber',
-                'patients.id as idPatient'
-            )->where('persons.idUser', $id)->get();
+            )->where('persons.idUser', $id)->first();
 
         return response()->json($person);
     }
