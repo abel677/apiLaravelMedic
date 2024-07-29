@@ -12,6 +12,7 @@ use App\Http\Controllers\PaginaController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PersonaController;
 
+Route::get('/confirm/account/{token}', [AuthController::class, 'confirmAccount']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/logout', [AuthController::class, 'logout']);
