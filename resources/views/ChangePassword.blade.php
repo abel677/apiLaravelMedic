@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Notificación de Cita Médica</title>
+    <title>Cambio de contraseña</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -61,13 +61,12 @@
 
     <div class="container">
         <div class="header">
-            <h1>Notificación de Cita Médica</h1>
+            <h1>Notificación cambio de contraseña</h1>
         </div>
         <div class="content">
             <p>Hola, {{ $emailData['user'] }},</p>
-            <p>Tu cita médica ha sido confirmada con el <strong>Dr.</strong> <span>{{ $emailData['doctor'] }}</span>.
+            <p>Tu nueva contraseña es: <strong> <span>{{ $emailData['password'] }}</span></strong>
             </p>
-            <p><strong>Hora:</strong> <span>{{ $emailData['hour'] }}</span></p>
         </div>
         <div class="footer">
             <p>Gracias por confiar en nuestros servicios.</p>

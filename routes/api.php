@@ -16,6 +16,7 @@ Route::get('/confirm/account/{token}', [AuthController::class, 'confirmAccount']
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/logout', [AuthController::class, 'logout']);
+Route::post('/changePassword', [AuthController::class, 'changePassword']);
 
 Route::middleware('auth:api')->group(function () {
 
@@ -38,5 +39,4 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/resolveAppointment/{id}', [AppointmentRequestCitaController::class, 'approved']);
     Route::delete('/cancelAppointment/{id}', [AppointmentRequestCitaController::class, 'cancel']);
 
-    Route::post('/changePassword', [AuthController::class, 'changePassword']);
 });

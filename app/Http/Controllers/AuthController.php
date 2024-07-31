@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\ConfirmEmail;
+use App\Mail\SendEmail;
 use App\Models\User;
 use App\Models\UserRole;
 use Exception;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\PersonalAccessToken;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -24,17 +26,29 @@ class AuthController extends Controller
         try {
             $request->validate([
                 'email' => 'required',
-                'password' => 'required',
             ]);
 
-            $user = Auth()->user();
-            $user = User::find($user->id);
-            $user->password = Hash::make($request->password);
+            $user = User::where('email', '=', $request->email)->first();
+            if (!$user) throw  new Exception("El correo proporcionado no existe", Response::HTTP_BAD_REQUEST);
+
+            $generatedPassword = Str::random(15);
+
+            $user->password = Hash::make($generatedPassword);
             $user->save();
+
+
+            $emailData = [
+                "user" => $user->email,
+                "password" => $generatedPassword
+            ];
+
+            Mail::to($user->email)->send(new SendEmail($emailData, "Cambio de contraseña", "ChangePassword"));
+
+
+
             return response()->json([
-                'message' => 'Contraseña cambiada con exito.',
+                'message' => 'Se ha enviado un correo con la nueva contraseña a ' . $user->email . '. Por favor, verifica tu bandeja.',
             ], 200);
-            
         } catch (\Throwable $th) {
             throw  new Exception($th->getMessage(), Response::HTTP_BAD_REQUEST);
         }
@@ -54,12 +68,9 @@ class AuthController extends Controller
             $url = config('app.url_front');
             $user  = User::find($decode->name);
 
-
-
             if ($user->email_verified_at) {
                 return redirect($url);
             }
-
 
             $user->email_verified_at = now();
             $user->save();
@@ -176,24 +187,5 @@ class AuthController extends Controller
 
         $success = true;
         return compact('success');
-    }
-
-
-    public function getUser($id)
-    {
-        $user = User::find($id);
-
-
-        $roles = DB::table('usersRoles')
-            ->join('roles', 'roles.id', '=', 'usersRoles.idRole')
-            ->join('users', 'users.id', '=', 'usersRoles.idUser')
-            ->where('users.id', $user->id)
-            ->select('roles.*')
-            ->get();
-
-
-        $status = true;
-
-        return compact('status', 'user', 'roles');
     }
 }
