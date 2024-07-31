@@ -23,8 +23,22 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->renderable(function (Throwable $e) {
+
+            $message = "Ocurrió un error interno en el servidor.";
+            $code = 500;
+
+            if ($e->getCode()) {
+                $code = $e->getCode();
+            }
+            if ($e->getMessage()) {
+                $message = $e->getMessage();
+            }
+
+            return response()->json([
+                'message' => $message,
+                'code' => $code
+            ], $code);
         });
     }
 }

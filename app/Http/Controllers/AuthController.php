@@ -3,13 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Mail\ConfirmEmail;
-use App\Models\AppointmentRequest;
-use App\Models\Person;
-use App\Models\Role;
 use App\Models\User;
 use App\Models\UserRole;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -20,10 +18,31 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class AuthController extends Controller
 {
 
+    public function changePassword(Request $request)
+    {
+
+        try {
+            $request->validate([
+                'email' => 'required',
+                'password' => 'required',
+            ]);
+
+            $user = Auth()->user();
+            $user = User::find($user->id);
+            $user->password = Hash::make($request->password);
+            $user->save();
+            return response()->json([
+                'message' => 'Contraseña cambiada con exito.',
+            ], 200);
+            
+        } catch (\Throwable $th) {
+            throw  new Exception($th->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
 
     public function confirmAccount($token)
     {
-
 
         try {
             $decode = PersonalAccessToken::findToken($token);
@@ -46,16 +65,9 @@ class AuthController extends Controller
             $user->save();
             return redirect($url);
         } catch (\Throwable $th) {
-            return response()->json([
-                "error" =>  $th->getMessage()
-            ]);
+            throw  new Exception($th->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
-
-
-
-
-
 
 
     public function register(Request $request)
@@ -70,7 +82,6 @@ class AuthController extends Controller
             ]);
 
             $userFound = DB::table('users')->where('email', $valueData['email'])->first();
-
             if (($userFound)) {
                 return response()->json([
                     'status' => false,
@@ -83,20 +94,13 @@ class AuthController extends Controller
                 'email' => $valueData['email'],
                 'password' => Hash::make($valueData['password']),
             ]);
-
-
             UserRole::create([
                 'idRole' => 3,
                 'idUser' => $user->id
             ]);
 
-
-
             $token = $user->createToken($user->id)->plainTextToken;
-
-
             $url = config('app.url');
-
             $mailData = [
 
                 "usuario" => $user->email,
@@ -124,31 +128,47 @@ class AuthController extends Controller
     {
         $credentials = $request->only('email', 'password');
 
-        if (Auth::guard('api')->attempt($credentials)) {
-            $jwt = JWTAuth::attempt($credentials);
-            $user = Auth::guard('api')->user();
-
-
-            $roles = DB::table('usersRoles')
-                ->join('roles', 'roles.id', '=', 'usersRoles.idRole')
-                ->join('users', 'users.id', '=', 'usersRoles.idUser')
-                ->where('users.id', $user->id)
-                ->select('roles.*')
-                ->get();
-
-
-            $status = true;
-
-            return compact('status', 'user', 'jwt', 'roles');
-        } else {
-            $success = false;
-            $message = 'Credenciales invalidas';
+        // Intentar autenticar al usuario
+        if (!$token = $this->attemptLogin($credentials)) {
             return response()->json([
-                'status' => $success,
-                'message' => $message
+                'status' => false,
+                'message' => 'Credenciales invalidas'
             ], 401);
         }
+
+        // Obtener el usuario autenticado
+        $user = Auth::guard('api')->user();
+
+        // Obtener los roles del usuario
+        $roles = $this->getUserRoles($user->id);
+
+        // Responder con éxito
+        return response()->json([
+            'status' => true,
+            'user' => $user,
+            'jwt' => $token,
+            'roles' => $roles
+        ]);
     }
+
+    private function attemptLogin(array $credentials)
+    {
+        if (Auth::guard('api')->attempt($credentials)) {
+            return JWTAuth::attempt($credentials);
+        }
+        return false;
+    }
+
+    private function getUserRoles($userId)
+    {
+        return DB::table('usersRoles')
+            ->join('roles', 'roles.id', '=', 'usersRoles.idRole')
+            ->join('users', 'users.id', '=', 'usersRoles.idUser')
+            ->where('users.id', $userId)
+            ->select('roles.*')
+            ->get();
+    }
+
 
     public function logout()
     {

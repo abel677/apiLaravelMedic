@@ -36,4 +36,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/pages/{idRol}', [PaginaController::class, 'show']);
     Route::get('/resolveAppointment/{id}', [AppointmentRequestCitaController::class, 'approved']);
+    Route::delete('/cancelAppointment/{id}', [AppointmentRequestCitaController::class, 'cancel']);
+
+    Route::post('/changePassword', [AuthController::class, 'changePassword']);
 });

@@ -24,191 +24,40 @@ class DoctorController extends Controller
 
     public function show($direction, $idSpecialties, $idSchedule)
     {
-        $doctors = [];
+        $doctors = DB::table('doctors')
+            ->join('persons', 'persons.id', '=', 'doctors.idPerson')
+            ->join('specialties', 'specialties.id', '=', 'doctors.idSpecialty')
+            ->join('schedules', 'schedules.id', '=', 'doctors.idSchedule');
 
-        try {
-
-            if ($direction != -1 && ($idSpecialties == -1 && $idSchedule == -1)) {
-                $doctors = DB::table('doctors')
-                    ->join('persons', 'persons.id', '=', 'doctors.idPerson')
-                    ->join('specialties', 'specialties.id', '=', 'doctors.idSpecialty')
-                    ->join('schedules', 'schedules.id', '=', 'doctors.idSchedule')
-                    ->where('persons.direction', '=', $direction)
-                    ->select(
-                        'doctors.id as doctor_id',
-                        'persons.id as idPerson',
-                        'persons.name',
-                        'persons.lastName',
-                        'persons.birthDate',
-                        'persons.direction',
-                        'persons.phone',
-                        'persons.typeBlood',
-                        'specialties.id as idSpecialty',
-                        'specialties.specialty',
-                        'schedules.id as idSchedule',
-                        'schedules.schedule'
-                    )
-                    ->get();
-                return response()->json($doctors);
-            } else
-
-            if (($direction == -1 && $idSchedule == -1) && $idSpecialties != -1) {
-                $doctors = DB::table('doctors')
-                    ->join('persons', 'persons.id', '=', 'doctors.idPerson')
-                    ->join('specialties', 'specialties.id', '=', 'doctors.idSpecialty')
-                    ->join('schedules', 'schedules.id', '=', 'doctors.idSchedule')
-                    ->where('doctors.idSpecialty', '=', $idSpecialties)
-                    ->select(
-                        'doctors.id as doctor_id',
-                        'persons.id as idPerson',
-                        'persons.name',
-                        'persons.lastName',
-                        'persons.birthDate',
-                        'persons.direction',
-                        'persons.phone',
-                        'persons.typeBlood',
-                        'specialties.id as idSpecialty',
-                        'specialties.specialty',
-                        'schedules.id as idSchedule',
-                        'schedules.schedule'
-                    )
-                    ->get();
-                return response()->json($doctors);
-            } else
-
-            if (($direction == -1 && $idSpecialties == -1) && $idSchedule != -1) {
-                $doctors = DB::table('doctors')
-                    ->join('persons', 'persons.id', '=', 'doctors.idPerson')
-                    ->join('specialties', 'specialties.id', '=', 'doctors.idSpecialty')
-                    ->join('schedules', 'schedules.id', '=', 'doctors.idSchedule')
-                    ->where('doctors.idSchedule', '=', $idSchedule)
-                    ->select(
-                        'doctors.id as doctor_id',
-                        'persons.id as idPerson',
-                        'persons.name',
-                        'persons.lastName',
-                        'persons.birthDate',
-                        'persons.direction',
-                        'persons.phone',
-                        'persons.typeBlood',
-                        'specialties.id as idSpecialty',
-                        'specialties.specialty',
-                        'schedules.id as idSchedule',
-                        'schedules.schedule'
-                    )
-                    ->get();
-                return response()->json($doctors);
-            } else
-
-
-            if ($direction == -1 && ($idSpecialties != -1 && $idSchedule != -1)) {
-                $doctors = DB::table('doctors')
-                    ->join('persons', 'persons.id', '=', 'doctors.idPerson')
-                    ->join('specialties', 'specialties.id', '=', 'doctors.idSpecialty')
-                    ->join('schedules', 'schedules.id', '=', 'doctors.idSchedule')
-                    ->where('doctors.idSpecialty', '=', $idSpecialties)
-                    ->Where('doctors.idSchedule', '=', $idSchedule)
-                    ->select(
-                        'doctors.id as doctor_id',
-                        'persons.id as idPerson',
-                        'persons.name',
-                        'persons.lastName',
-                        'persons.birthDate',
-                        'persons.direction',
-                        'persons.phone',
-                        'persons.typeBlood',
-                        'specialties.id as idSpecialty',
-                        'specialties.specialty',
-                        'schedules.id as idSchedule',
-                        'schedules.schedule'
-                    )
-                    ->get();
-
-                return response()->json($doctors);
-            } else
-
-
-            if (($direction != -1 && $idSpecialties != -1) && $idSchedule == -1) {
-                $doctors = DB::table('doctors')
-                    ->join('persons', 'persons.id', '=', 'doctors.idPerson')
-                    ->join('specialties', 'specialties.id', '=', 'doctors.idSpecialty')
-                    ->join('schedules', 'schedules.id', '=', 'doctors.idSchedule')
-                    ->where('doctors.idSpecialty', '=', $idSpecialties)
-                    ->Where('persons.direction', '=', $direction)
-                    ->select(
-                        'doctors.id as doctor_id',
-                        'persons.id as idPerson',
-                        'persons.name',
-                        'persons.lastName',
-                        'persons.birthDate',
-                        'persons.direction',
-                        'persons.phone',
-                        'persons.typeBlood',
-                        'specialties.id as idSpecialty',
-                        'specialties.specialty',
-                        'schedules.id as idSchedule',
-                        'schedules.schedule'
-                    )
-                    ->get();
-                return response()->json($doctors);
-            } else
-
-            if (($direction != -1 && $idSchedule != -1) && $idSpecialties == -1) {
-                $doctors = DB::table('doctors')
-                    ->join('persons', 'persons.id', '=', 'doctors.idPerson')
-                    ->join('specialties', 'specialties.id', '=', 'doctors.idSpecialty')
-                    ->join('schedules', 'schedules.id', '=', 'doctors.idSchedule')
-                    ->Where('doctors.idSchedule', '=', $idSchedule)
-                    ->Where('persons.direction', '=', $direction)
-                    ->select(
-                        'doctors.id as doctor_id',
-                        'persons.id as idPerson',
-                        'persons.name',
-                        'persons.lastName',
-                        'persons.birthDate',
-                        'persons.direction',
-                        'persons.phone',
-                        'persons.typeBlood',
-                        'specialties.id as idSpecialty',
-                        'specialties.specialty',
-                        'schedules.id as idSchedule',
-                        'schedules.schedule'
-                    )
-                    ->get();
-                return response()->json($doctors);
-            } else {
-                $doctors = DB::table('doctors')
-                    ->join('persons', 'persons.id', '=', 'doctors.idPerson')
-                    ->join('specialties', 'specialties.id', '=', 'doctors.idSpecialty')
-                    ->join('schedules', 'schedules.id', '=', 'doctors.idSchedule')
-                    ->where('doctors.idSpecialty', '=', $idSpecialties)
-                    ->where('doctors.idSchedule', '=', $idSchedule)
-                    ->where('persons.direction', '=', $direction)
-                    ->select(
-                        'doctors.id as doctor_id',
-                        'persons.id as idPerson',
-                        'persons.name',
-                        'persons.lastName',
-                        'persons.birthDate',
-                        'persons.direction',
-                        'persons.phone',
-                        'persons.typeBlood',
-                        'specialties.id as idSpecialty',
-                        'specialties.specialty',
-                        'schedules.id as idSchedule',
-                        'schedules.schedule'
-                    )
-                    ->get();
-
-                return response()->json($doctors);
-            }
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage()
-            ], 500);
+        // Conditionally add where clauses based on the input values
+        if ($direction != -1) {
+            $doctors->where('persons.direction', '=', $direction);
         }
+        if ($idSpecialties != -1) {
+            $doctors->where('specialties.id', '=', $idSpecialties);
+        }
+        if ($idSchedule != -1) {
+            $doctors->where('schedules.id', '=', $idSchedule);
+        }
+
+        $doctors = $doctors->select(
+            'doctors.id as doctor_id',
+            'persons.id as idPerson',
+            'persons.name',
+            'persons.lastName',
+            'persons.birthDate',
+            'persons.direction',
+            'persons.phone',
+            'persons.typeBlood',
+            'specialties.id as idSpecialty',
+            'specialties.specialty',
+            'schedules.id as idSchedule',
+            'schedules.schedule'
+        )->get();
+
+        return response()->json($doctors);
     }
+
 
     public function getDoctor($id)
     {
@@ -235,7 +84,7 @@ class DoctorController extends Controller
             )
             ->orderBy('doctor_patient.state')
             ->orderByDesc('doctor_patient.id')
-            ->where('doctor_patient.state', 0)
+            //->where('doctor_patient.state', 0)
             ->get();
 
         foreach ($appointment as $key => $value) {
