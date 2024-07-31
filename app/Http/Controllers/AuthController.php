@@ -188,4 +188,17 @@ class AuthController extends Controller
         $success = true;
         return compact('success');
     }
+
+    public function getUser($id)
+    {
+        $user = User::find($id);
+        $roles = DB::table('usersRoles')
+            ->join('roles', 'roles.id', '=', 'usersRoles.idRole')
+            ->join('users', 'users.id', '=', 'usersRoles.idUser')
+            ->where('users.id', $user->id)
+            ->select('roles.*')
+            ->get();
+        $status = true;
+        return compact('status', 'user', 'roles');
+    }
 }
